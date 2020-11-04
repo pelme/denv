@@ -54,7 +54,7 @@ jobs:
       run: |
         mkdir -p ~/.local/bin
         export PATH=~/.local/bin:$PATH
-        if [[ ! -x ~/.local/bin/stack ]]; then curl -sL https://get.haskellstack.org/stable/$OS_NAME-x86_64.tar.gz | $TARCMD xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
+        if [[ ! -x ~/.local/bin/stack ]]; then curl -sL https://get.haskellstack.org/stable/${{ matrix.OS_NAME }}-x86_64.tar.gz | ${{ matrix.TARCMD }} xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
         stack --version
 
     #- uses: cachix/install-nix-action@v11
