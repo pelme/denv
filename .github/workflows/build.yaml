@@ -51,6 +51,10 @@ jobs:
         restore-keys: |
              ${{ runner.os }}-stack-work
 
+    - name: Install gnu-tar (only on MacOS)
+      run: brew install gnu-tar
+      if: matrix.os == 'macos-latest'
+
     - name: Install stack
       run: |
         mkdir -p ~/.local/bin
