@@ -13,11 +13,13 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
-        # include:
-        # - os: macos-latest
-        #   OSNAME: osx
-        # - os: ubuntu-latest
-        #   OSNAME: linux
+        include:
+        - os: macos-latest
+          OS_NAME: osx
+          TARCMD: gtar
+        - os: ubuntu-latest
+          OS_NAME: linux
+          TARCMD: tar
     steps:
     - name: Checkout
       uses: actions/checkout@v2.3.1
@@ -52,7 +54,7 @@ jobs:
       run: |
         mkdir -p ~/.local/bin
         export PATH=~/.local/bin:$PATH
-        if [[ ! -x ~/.local/bin/stack ]]; then curl -sL https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
+        if [[ ! -x ~/.local/bin/stack ]]; then curl -sL https://get.haskellstack.org/stable/${OS_NAME}-x86_64.tar.gz | ${TARCMD} xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
         stack --version
 
     #- uses: cachix/install-nix-action@v11
