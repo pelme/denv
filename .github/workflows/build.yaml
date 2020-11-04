@@ -51,7 +51,7 @@ jobs:
       run: stack --no-terminal install
     - name: Create release artifact
       run: |
-        stack exec -- cp $(which denv) .
+        cp ~/.local/bin/denv .
         tar -czf denv.tar.gz denv
     # - name: Create Release
     #   id: create_release
