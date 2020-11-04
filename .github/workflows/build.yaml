@@ -1,6 +1,5 @@
-name: "Build Linux, Mac and static binaries"
+name: "Build dynamic and static binaries"
 on:
-  # trigger deploy
   # pull_request:
   #   types: [opened, synchronize, reopened]
 
@@ -9,25 +8,53 @@ on:
       - 'deni/gh-test'
 
 jobs:
-  build-linux-and-mac:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
-        include:
-        - os: macos-latest
-          OSNAME: osx
-        - os: ubuntu-latest
-          OSNAME: linux
+        # include:
+        # - os: macos-latest
+        #   OSNAME: osx
+        # - os: ubuntu-latest
+        #   OSNAME: linux
     steps:
-    - name: Cache stack and stack-work
+    - name: Checkout
+      uses: actions/checkout@v2.3.1
+
+    - name: Cache global ~/.stack
+      id:   stack-global
       uses: actions/cache@v2
       with:
-        path: |
-          ~/.stack
-          ./.stack-work
-        key: ${{ runner.os }}-${{ hashFiles('stack.yaml.lock') }}
-    - uses: actions/checkout@v2.3.1
+        path: ~/.stack
+        key: ${{ runner.os }}-stack-global-${{ hashFiles('**.yaml') }}
+        restore-keys: |
+             ${{ runner.os }}-stack-global
+
+    - name: Cache stack-installed programs in ~/.local/bin
+      id:   stack-programs
+      uses: actions/cache@v2
+      with:
+        path: ~/.local/bin
+        key: ${{ runner.os }}-stack-programs-${{ hashFiles('**.yaml') }}
+        restore-keys: |
+             ${{ runner.os }}-stack-programs
+
+    - name: Cache .stack-work
+      uses: actions/cache@v2
+      with:
+        path: .stack-work
+        key: ${{ runner.os }}-stack-work-${{ hashFiles('**.yaml') }}
+        restore-keys: |
+             ${{ runner.os }}-stack-work
+
+    - name: Install stack
+      run: |
+        mkdir -p ~/.local/bin
+        export PATH=~/.local/bin:$PATH
+        if [[ ! -x ~/.local/bin/stack ]]; then curl -sL https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
+        stack --version
+
     #- uses: cachix/install-nix-action@v11
     #  with:
     #    nix_path: nixpkgs=channel:nixos-19.09
@@ -37,13 +64,8 @@ jobs:
     #    signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
     #    # Only needed for private caches
     #    #authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - uses: actions/setup-haskell@v1.1
-      with:
-        ghc-version: '8.4.4' # Resolves to the latest point release of GHC 8.8
-        # cabal-version: '3.0.0.0' # Exact version of Cabal
-        enable-stack: true
-        stack-version: '2.1.3'
     - run: echo "::set-env name=SHORT_SHA::$(git rev-parse --short HEAD)"
+    - run: echo "::set-env name=VERSION::$(make version)"
     - name: Stack setup
       run: stack --no-terminal setup --no-reinstall > /dev/null
     - name: Stack test
@@ -53,7 +75,7 @@ jobs:
     - name: Create release artifact
       run: |
         cp ~/.local/bin/denv .
-        tar -czf denv.tar.gz denv
+        tar -czf denv-${VERSION}-${{ runner.os }}-x86_64.tar.gz denv
     # - name: Create Release
     #   id: create_release
     #   uses: actions/create-release@v1
@@ -74,5 +96,5 @@ jobs:
     #   with:
     #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
     #     asset_path: ./denv.tar.gz
-    #     asset_name: denv-${{ github.ref }}-${NAME}-x86_64.tar.gz
+    #     asset_name: denv-${{ github.ref }}-${{ runner.os }}-x86_64.tar.gz
     #     asset_content_type: application/gzip
