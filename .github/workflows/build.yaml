@@ -11,6 +11,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest]
         include:
@@ -29,7 +30,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.stack
-        key: ${{ runner.os }}-stack-global-${{ hashFiles('**.yaml') }}
+        key: ${{ runner.os }}-stack-global-${{ hashFiles('stack.yaml.lock') }}
         restore-keys: |
              ${{ runner.os }}-stack-global
 
@@ -38,7 +39,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.local/bin
-        key: ${{ runner.os }}-stack-programs-${{ hashFiles('**.yaml') }}
+        key: ${{ runner.os }}-stack-programs-${{ hashFiles('stack.yaml.lock') }}
         restore-keys: |
              ${{ runner.os }}-stack-programs
 
@@ -46,7 +47,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: .stack-work
-        key: ${{ runner.os }}-stack-work-${{ hashFiles('**.yaml') }}
+        key: ${{ runner.os }}-stack-work-${{ hashFiles('stack.yaml.lock') }}
         restore-keys: |
              ${{ runner.os }}-stack-work
 
