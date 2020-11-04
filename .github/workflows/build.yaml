@@ -54,7 +54,7 @@ jobs:
       run: |
         mkdir -p ~/.local/bin
         export PATH=~/.local/bin:$PATH
-        if [[ ! -x ~/.local/bin/stack ]]; then curl -sL https://get.haskellstack.org/stable/${OS_NAME}-x86_64.tar.gz | ${TARCMD} xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
+        if [[ ! -x ~/.local/bin/stack ]]; then curl -sL https://get.haskellstack.org/stable/$OS_NAME-x86_64.tar.gz | $TARCMD xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; chmod a+x ~/.local/bin/stack; fi
         stack --version
 
     #- uses: cachix/install-nix-action@v11
@@ -77,7 +77,7 @@ jobs:
     - name: Create release artifact
       run: |
         cp ~/.local/bin/denv .
-        tar -czf denv-${VERSION}-${{ runner.os }}-x86_64.tar.gz denv
+        tar -czf denv-$VERSION-${{ runner.os }}-x86_64.tar.gz denv
     # - name: Create Release
     #   id: create_release
     #   uses: actions/create-release@v1
