@@ -1,5 +1,6 @@
 name: "Build Linux, Mac and static binaries"
 on:
+  # trigger deploy
   # pull_request:
   #   types: [opened, synchronize, reopened]
 
