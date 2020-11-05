@@ -1,5 +1,6 @@
 name: "Build dynamic and static binaries"
 on:
+  # trigger build
   # pull_request:
   #   types: [opened, synchronize, reopened]
 
